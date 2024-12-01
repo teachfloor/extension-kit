@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Group, Box, Text } from '@teachfloor/ui-kit'
-import { Divider } from './'
+import { Divider } from './ui'
 
 /**
  * More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

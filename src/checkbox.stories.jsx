@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Stack } from '@teachfloor/ui-kit'
-import { Checkbox } from './'
+import { Checkbox } from './ui'
 
 /**
  * More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

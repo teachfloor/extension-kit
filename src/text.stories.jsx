@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Box } from '@teachfloor/ui-kit'
-import { Text } from './'
+import { Text } from './ui'
 
 /**
  * More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

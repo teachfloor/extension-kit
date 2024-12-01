@@ -17,6 +17,7 @@ import {
   Tooltip as TooltipUI,
   Text as TextUI,
 
+  Container as ContainerUI,
   Box as BoxUI,
   Group as GroupUI,
   Grid as GridUI,
@@ -45,6 +46,7 @@ export const Chip = ChipUI
 export const Tooltip = TooltipUI
 export const Text = TextUI
 
+export const Container = ContainerUI
 export const Box = BoxUI
 export const Grid = GridUI
 export const Group = GroupUI

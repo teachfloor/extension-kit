@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Group } from '@teachfloor/ui-kit'
-import { Badge } from './'
+import { Badge } from './ui'
 
 /**
  * More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

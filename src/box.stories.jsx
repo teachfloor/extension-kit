@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Box } from './'
+import { Box } from './ui'
 
 /**
  * More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

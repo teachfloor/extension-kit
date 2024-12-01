@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Group } from '@teachfloor/ui-kit'
-import { Tooltip, Button } from './'
+import { Tooltip, Button } from './ui'
 
 /**
  * More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

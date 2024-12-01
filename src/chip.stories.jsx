@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Group } from '@teachfloor/ui-kit'
-import { Chip } from './'
+import { Chip } from './ui'
 
 /**
  * More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Switch } from './'
+import { Switch } from './ui'
 
 /**
  * More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
