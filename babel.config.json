@@ -1,0 +1,9 @@
+{
+  "presets": [
+    "@babel/env",
+    "@babel/preset-react"
+  ],
+  "ignore": [
+    "src/**/*.stories.js"
+  ]
+}

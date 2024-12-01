@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+WHITE='\033[1;37m'
+NC='\033[0m'
+
+# Ensure that Docker is running...
+if ! docker info > /dev/null 2>&1; then
+    echo -e "${WHITE}Docker is not running.${NC}" >&2
+
+    exit 1
+fi
+
+if [ $# -gt 0 ]; then
+    # Source the ".env" file so environment variables are available...
+    if [ -f ./.env ]; then
+        source ./.env
+    fi
+
+    # Initiate Storybook within the application container...
+    if [ "$1" == "storybook" ]; then
+        shift 1
+
+        docker run --rm -it  \
+            -w /app \
+            -p 6006:6006 \
+            -v $(pwd):/app \
+            node:latest \
+            npm run storybook
+
+    # Proxy NPM commands to the "npm" binary on the application container...
+    elif [ "$1" == "npm" ]; then
+        shift 1
+
+        docker run --rm -it  \
+            -w /app \
+            --env-file ./.env \
+            -v $(pwd):/app \
+            node:latest \
+            npm "$@"
+
+    # Publish the package to NPM...
+    elif [ "$1" == "release" ]; then
+        shift 1
+
+        docker run --rm -it  \
+            -w /app \
+            --env-file ./.env \
+            -v $(pwd):/app \
+            -v ~/.gitconfig:/etc/gitconfig \
+            node:latest \
+            npm run release && git push
+
+    # Proxy NPX commands to the "npx" binary on the application container...
+    elif [ "$1" == "npx" ]; then
+        shift 1
+
+        docker run --rm -it  \
+            -w /app \
+            -v $(pwd):/app \
+            node:latest \
+            npx "$@"
+
+    # Proxy YARN commands to the "yarn" binary on the application container...
+    elif [ "$1" == "yarn" ]; then
+        shift 1
+
+        docker run --rm -it  \
+            -w /app \
+            -v $(pwd):/app \
+            node:latest \
+            yarn "$@"
+
+    # Pass unknown commands to the "docker" binary...
+    else
+        docker "$@"
+    fi
+else
+    docker ps
+fi

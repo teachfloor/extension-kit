@@ -1,0 +1,86 @@
+{
+  "name": "@teachfloor/extension-kit",
+  "version": "0.1.0",
+  "description": "Teachfloor Extension Kit",
+  "author": "Stefano Marra",
+  "private": false,
+  "main": "dist/index.js",
+  "license": "ISC",
+  "keywords": [
+    "react",
+    "ui",
+    "components",
+    "ui-kit",
+    "library",
+    "frontend",
+    "design",
+    "emotion",
+    "teachfloor"
+  ],
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/teachfloor/extension-kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teachfloor/extension-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/teachfloor/extension-kit/issues"
+  },
+  "scripts": {
+    "release": "npm run build && release-it --no-git.push --no-github.release",
+    "build": "rm -rf dist && NODE_ENV=production babel src --out-dir dist --ignore '**/*.stories.jsx'",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@teachfloor/ui-kit": "^0.6.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.20.7",
+    "@babel/core": "^7.20.12",
+    "@babel/preset-env": "^7.20.2",
+    "@storybook/addon-actions": "^6.5.16",
+    "@storybook/addon-essentials": "^6.5.16",
+    "@storybook/addon-interactions": "^6.5.16",
+    "@storybook/addon-links": "^6.5.16",
+    "@storybook/builder-webpack5": "^6.5.16",
+    "@storybook/manager-webpack5": "^6.5.16",
+    "@storybook/node-logger": "^6.5.16",
+    "@storybook/preset-create-react-app": "^4.1.2",
+    "@storybook/react": "^6.5.16",
+    "@storybook/testing-library": "^0.0.13",
+    "babel-plugin-named-exports-order": "^0.0.2",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "release-it": "^15.6.0",
+    "webpack": "^5.75.0"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
+  },
+  "release-it": {
+    "github": {
+      "release": true,
+      "tokenRef": "GITHUB_TOKEN"
+    },
+    "npm": {
+      "publish": true
+    }
+  }
+}
