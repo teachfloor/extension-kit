@@ -4,7 +4,12 @@ import { useExtensionContext } from '../'
 /**
  * Extension View Loader
  */
-export const ExtensionViewLoader = ({ manifest = null, fallback = null }) => {
+export const ExtensionViewLoader = ({
+  manifest = null,
+  fallback = null,
+  basePath = './',
+  componentResolver = null
+}) => {
   const { environment } = useExtensionContext()
 
   const getCurrentViewport = () => (
@@ -12,9 +17,9 @@ export const ExtensionViewLoader = ({ manifest = null, fallback = null }) => {
   )
 
   const getView = () => {
-    if (!manifest) return null
-    if (!manifest.ui_extension) return null
-    if (!manifest.ui_extension.views) return null
+    if (!manifest || !manifest.ui_extension || !manifest.ui_extension.views) {
+      return null
+    }
 
     return manifest.ui_extension.views.find((v) => {
       if (!v.viewport) {
@@ -31,7 +36,13 @@ export const ExtensionViewLoader = ({ manifest = null, fallback = null }) => {
     return null
   }
 
-  const ViewComponent = lazy(() => import(`./${view.component}`))
+  const ViewComponent = lazy(() => {
+    if (componentResolver) {
+      return componentResolver(view.component)
+    }
+
+    return import(`${basePath}${view.component}`)
+  })
 
   return (
     <Suspense fallback={fallback}>
