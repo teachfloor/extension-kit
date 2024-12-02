@@ -31,14 +31,10 @@ import {
   Tabs as TabsUI,
 } from '@teachfloor/ui-kit'
 
-import { ExtensionViewLoader } from './ExtensionViewLoader'
-
 /**
  * Extension App Components
  */
-export {
-  ExtensionViewLoader,
-}
+export * from './ExtensionViewLoader'
 
 /**
  * Layout
