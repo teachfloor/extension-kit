@@ -1,8 +1,8 @@
 import React from 'react'
-import { TeachfloorProvider } from '@teachfloor/ui-kit'
+import { ExtensionContextProvider } from '/src'
 
 export const decorators = [
-  (renderStory) => <TeachfloorProvider>{renderStory()}</TeachfloorProvider>
+  (renderStory) => <ExtensionContextProvider>{renderStory()}</ExtensionContextProvider>
 ]
 
 export const parameters = {

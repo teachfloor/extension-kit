@@ -5,6 +5,8 @@ import React, {
   useEffect,
 } from 'react'
 
+import { ThemeProvider } from './ThemeProvider'
+
 /**
  * Default context object
  */
@@ -29,6 +31,8 @@ export const ExtensionContextProvider = ({ children }) => {
    * - Update context state value
    */
   useEffect(() => {
+    const tf = window.tf
+
     if (tf) {
       tf('onInit', (API) => {
         window.teachfloor = API
@@ -42,7 +46,9 @@ export const ExtensionContextProvider = ({ children }) => {
 
   return (
     <ExtensionContext.Provider value={context}>
-      {children}
+      <ThemeProvider>
+        {children}
+      </ThemeProvider>
     </ExtensionContext.Provider>
   );
 }
