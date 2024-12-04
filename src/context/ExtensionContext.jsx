@@ -12,6 +12,7 @@ import { ThemeProvider } from './ThemeProvider'
  */
 const defaultContext = {
   userContext: undefined,
+  appContext: undefined,
   environment: {
     viewport: undefined,
   },
