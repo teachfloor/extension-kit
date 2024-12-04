@@ -32,11 +32,13 @@ import {
 } from '@teachfloor/ui-kit'
 
 import { ExtensionViewLoader as ViewLoader } from './ExtensionViewLoader'
+import { SettingsView as SettingsViewUI } from './SettingsView'
 
 /**
  * Extension App Components
  */
 export const ExtensionViewLoader = ViewLoader
+export const SettingsView = SettingsViewUI
 
 /**
  * Layout
