@@ -9,6 +9,7 @@ import {
   Divider,
   useExtensionContext,
 } from '../'
+import { NotFoundView } from './'
 
 /**
  * Settings View
@@ -39,7 +40,7 @@ export const SettingsView = ({
   }
 
   if (!shouldBeRendered()) {
-    return null
+    return <NotFoundView />
   }
 
   return (
