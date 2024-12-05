@@ -31,7 +31,7 @@ export const SettingsView = ({
   const shouldBeRendered = () => {
     const target = appContext.target || 'view'
 
-    if (target === 'view') {
+    if (target === 'settings') {
       return true
     }
 
