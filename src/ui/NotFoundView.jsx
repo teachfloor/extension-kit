@@ -1,3 +1,3 @@
 import React from 'react'
 
-const NotFoundView = () => null
+export const NotFoundView = () => null
