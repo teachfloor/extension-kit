@@ -1,6 +1,10 @@
 import React, { lazy, Suspense } from 'react'
 import { useExtensionContext } from '../'
 
+const NotFoundView = ({ views = [] }) => {
+  return null
+}
+
 /**
  * Extension View Loader
  */
@@ -16,12 +20,16 @@ export const ExtensionViewLoader = ({
     environment?.viewport || null
   )
 
-  const getView = () => {
+  const getViews = () => {
     if (!manifest || !manifest.ui_extension || !manifest.ui_extension.views) {
-      return null
+      return []
     }
 
-    return manifest.ui_extension.views.find((v) => {
+    return manifest.ui_extension.views
+  }
+
+  const getView = () => {
+    return getViews().find((v) => {
       if (!v.viewport) {
         return null
       }
@@ -33,7 +41,7 @@ export const ExtensionViewLoader = ({
   const view = getView()
 
   if (!view) {
-    return null
+    return <NotFoundView views={getViews()} />
   }
 
   const ViewComponent = lazy(() => {
