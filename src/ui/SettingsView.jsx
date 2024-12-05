@@ -20,6 +20,28 @@ export const SettingsView = ({
 }) => {
   const { appContext } = useExtensionContext()
 
+  /**
+   * Decide if the settings view should be rendered
+   * or not based on the app target.
+   * The app target determines if the app is loaded in a
+   * view (drawer) or the settings page.
+   *
+   * Default target is `view`
+   */
+  const shouldBeRendered = () => {
+    const target = appContext.target || 'view'
+
+    if (target === 'view') {
+      return true
+    }
+
+    return false
+  }
+
+  if (!shouldBeRendered()) {
+    return null
+  }
+
   return (
     <Container pt="md">
       <SimpleGrid>
