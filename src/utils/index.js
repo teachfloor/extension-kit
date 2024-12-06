@@ -29,3 +29,11 @@ export const toggleDrawer = () => {
 
   teachfloor.emit('ui.drawer.toggle')
 }
+
+export const goToViewport = (viewport = null) => {
+  if (!teachfloor) {
+    return;
+  }
+
+  teachfloor.emit('request.viewport.change', viewport)
+}
