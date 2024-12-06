@@ -53,10 +53,10 @@ export const NotFoundView = ({ name = null, views = null }) => {
 
   const renderText = () => {
     if (getAppName()) {
-      return <Text fw={600}>{`Choose a page below to get started with ${getAppName()}`}</Text>
+      return <Text ta="center" fw={600}>{`Choose a page below to get started with ${getAppName()}`}</Text>
     }
 
-    return <Text fw={600}>Choose a page below to get started</Text>
+    return <Text ta="center" fw={600}>Choose a page below to get started</Text>
   }
 
   const renderAvailableViews = () => (
