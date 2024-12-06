@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { forwardRef} from 'react'
 import {
   Container,
   SimpleGrid,
@@ -13,11 +13,11 @@ import {
 /**
  * Settings View
  */
-export const SettingsView = ({
+export const SettingsView = forwardRef(({
   onSave,
   statusMessage,
   children
-}) => {
+}, ref) => {
   const { appContext } = useExtensionContext()
 
   /**
@@ -43,7 +43,7 @@ export const SettingsView = ({
   }
 
   return (
-    <Container pt="md">
+    <Container pt="md" ref={ref}>
       <SimpleGrid>
         <Group position="apart" noWrap>
           <Text fw={700} size="lg">Settings</Text>
@@ -59,4 +59,4 @@ export const SettingsView = ({
       </SimpleGrid>
     </Container>
   )
-}
+})
