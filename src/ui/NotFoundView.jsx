@@ -1,8 +1,7 @@
 import React from 'react'
-import { Center } from '@teachfloor/ui-kit'
 
 import { goToViewport, useExtensionContext } from '../'
-import { SimpleGrid, Text, Group, Button } from '.'
+import { Container,SimpleGrid, Text, Group, Button } from '.'
 
 const getViewportName = (viewport = '') => {
   const words = viewport.split('.')
@@ -75,13 +74,13 @@ export const NotFoundView = ({ name = null, views = null }) => {
   }
 
   return (
-    <Center mih={300}>
+    <Container p="xl">
       <SimpleGrid>
         {renderText()}
         <SimpleGrid verticalSpacing="xs">
           {renderAvailableViews()}
         </SimpleGrid>
       </SimpleGrid>
-    </Center>
+    </Container>
   )
 }
