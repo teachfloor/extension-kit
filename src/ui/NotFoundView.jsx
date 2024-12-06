@@ -6,7 +6,7 @@ export const NotFoundView = () => {
   const { appContext, environment } = useExtensionContext()
 
   const renderAvailableViews = () => (
-    appContext.views.map((view) => (
+    (appContext?.views || []).map((view) => (
       <Group position="center">
         <Button variant="default">{view}</Button>
       </Group>
