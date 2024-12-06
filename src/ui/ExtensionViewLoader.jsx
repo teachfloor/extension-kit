@@ -1,5 +1,7 @@
 import React, { lazy, Suspense } from 'react'
+
 import { useExtensionContext } from '../'
+import { NotFoundView } from './NotFoundView'
 
 /**
  * Extension View Loader
@@ -37,7 +39,7 @@ export const ExtensionViewLoader = ({
   const view = getView()
 
   if (!view) {
-    return null
+    return <NotFoundView />
   }
 
   const ViewComponent = lazy(() => {
