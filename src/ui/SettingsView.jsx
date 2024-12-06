@@ -1,4 +1,4 @@
-import React, { forwardRef} from 'react'
+import React, { useEffect, useRef } from 'react'
 import {
   Container,
   SimpleGrid,
@@ -13,12 +13,31 @@ import {
 /**
  * Settings View
  */
-export const SettingsView = forwardRef(({
+export const SettingsView = ({
   onSave,
   statusMessage,
   children
-}, ref) => {
+}) => {
+  const ref = useRef(null)
   const { appContext } = useExtensionContext()
+
+  /**
+   * Emit view height
+   */
+  useEffect(() => {
+    if (!ref.current) {
+      return
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (teachfloor) {
+        teachfloor.emit('app.view.height', ref.current.clientHeight)
+      }
+    })
+
+    resizeObserver.observe(ref.current)
+    return () => resizeObserver.disconnect()
+  }, [])
 
   /**
    * Decide if the settings view should be rendered
@@ -59,4 +78,4 @@ export const SettingsView = forwardRef(({
       </SimpleGrid>
     </Container>
   )
-})
+}
