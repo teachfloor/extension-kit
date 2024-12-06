@@ -10,6 +10,8 @@ import {
   useExtensionContext,
 } from '../'
 
+import { NotFoundView } from './NotFoundView'
+
 /**
  * Settings View
  */
@@ -58,7 +60,7 @@ export const SettingsView = ({
   }
 
   if (!shouldBeRendered()) {
-    return null
+    return <NotFoundView />
   }
 
   return (
