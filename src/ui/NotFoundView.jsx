@@ -13,6 +13,10 @@ export const NotFoundView = () => {
     ))
   )
 
+  if (!appContext) {
+    return null
+  }
+
   return (
     <SimpleGrid>
       {renderAvailableViews()}
