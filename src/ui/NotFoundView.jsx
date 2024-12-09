@@ -61,7 +61,7 @@ export const NotFoundView = ({ name = null, views = null }) => {
 
   const renderAvailableViews = () => (
     getAvailableViews().map((view) => (
-      <Group position="center">
+      <Group position="center" key={view}>
         <Button variant="default" size="xs" onClick={() => goToViewport(view)}>
           {getViewportName(view)}
         </Button>
