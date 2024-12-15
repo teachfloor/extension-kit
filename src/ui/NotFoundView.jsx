@@ -40,7 +40,14 @@ export const NotFoundView = ({ name = null, views = null }) => {
       return views
     }
 
-    return appContext?.views || []
+    return (
+      (appContext?.views || [])
+
+        /**
+         * Avoid recognizing `settings` as a ui_extension view
+         */
+        .filter((view) => view !== 'settings')
+    )
   }
 
   const getAppName = () => {
