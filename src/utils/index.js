@@ -37,3 +37,19 @@ export const goToViewport = (viewport = null) => {
 
   teachfloor.emit('request.viewport.change', viewport)
 }
+
+export const retrieve = (key, source = 'appdata') => {
+  if (!teachfloor) {
+    return Promise.reject(new Error('Teachfloor is not available'));
+  }
+
+  return teachfloor.get(key, source)
+}
+
+export const store = (key, value, source = 'appdata') => {
+  if (!teachfloor) {
+    return Promise.reject(new Error('Teachfloor is not available'));
+  }
+
+  return teachfloor.set(key, value, source)
+}
