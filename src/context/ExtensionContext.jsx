@@ -14,7 +14,9 @@ const defaultContext = {
   userContext: undefined,
   appContext: undefined,
   environment: {
+    initialized: false,
     viewport: undefined,
+    path: undefined,
   },
 }
 
@@ -48,7 +50,11 @@ export const ExtensionContextProvider = ({ children }) => {
   return (
     <ExtensionContext.Provider value={context}>
       <ThemeProvider>
-        {children}
+        {
+          context.environment.initialized
+          ? children
+          : null
+        }
       </ThemeProvider>
     </ExtensionContext.Provider>
   );
