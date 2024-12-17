@@ -47,14 +47,18 @@ export const ExtensionContextProvider = ({ children }) => {
     }
   }, [])
 
+  const renderChildren = () => {
+    if (!context.environment.initialized) {
+      return null
+    }
+
+    return children
+  }
+
   return (
     <ExtensionContext.Provider value={context}>
       <ThemeProvider>
-        {
-          context.environment.initialized
-          ? children
-          : null
-        }
+        {renderChildren()}
       </ThemeProvider>
     </ExtensionContext.Provider>
   );
