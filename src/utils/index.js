@@ -1,6 +1,6 @@
 export const showToast = (message = null, options = {}) => {
   if (!teachfloor || !message) {
-    return;
+    return
   }
 
   teachfloor.emit('ui.toast.show', { message, ...options })
@@ -8,7 +8,7 @@ export const showToast = (message = null, options = {}) => {
 
 export const showDrawer = () => {
   if (!teachfloor) {
-    return;
+    return
   }
 
   teachfloor.emit('ui.drawer.show')
@@ -16,7 +16,7 @@ export const showDrawer = () => {
 
 export const hideDrawer = () => {
   if (!teachfloor) {
-    return;
+    return
   }
 
   teachfloor.emit('ui.drawer.hide')
@@ -24,7 +24,7 @@ export const hideDrawer = () => {
 
 export const toggleDrawer = () => {
   if (!teachfloor) {
-    return;
+    return
   }
 
   teachfloor.emit('ui.drawer.toggle')
@@ -32,15 +32,23 @@ export const toggleDrawer = () => {
 
 export const goToViewport = (viewport = null) => {
   if (!teachfloor) {
-    return;
+    return
   }
 
   teachfloor.emit('request.viewport.change', viewport)
 }
 
+export const subscribeToEvent = (event, callback = () => { }) => {
+  if (!teachfloor) {
+    return
+  }
+
+  return teachfloor.on(event, callback)
+}
+
 export const retrieve = (key, source = 'appdata') => {
   if (!teachfloor) {
-    return Promise.reject(new Error('Teachfloor is not available'));
+    return Promise.reject(new Error('Teachfloor is not available'))
   }
 
   return teachfloor.get(key, source)
@@ -48,7 +56,7 @@ export const retrieve = (key, source = 'appdata') => {
 
 export const store = (key, value, source = 'appdata') => {
   if (!teachfloor) {
-    return Promise.reject(new Error('Teachfloor is not available'));
+    return Promise.reject(new Error('Teachfloor is not available'))
   }
 
   return teachfloor.set(key, value, source)
