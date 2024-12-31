@@ -5,6 +5,7 @@ import React, {
   useEffect,
 } from 'react'
 
+import { initialize } from '../'
 import { ThemeProvider } from './ThemeProvider'
 
 /**
@@ -32,6 +33,7 @@ export const ExtensionContextProvider = ({ children }) => {
    * When teachfloor SDK is initialized:
    * - Start listening to event "__set_context"
    * - Update context state value
+   * - Let the parent know the app is initialized by calling `initialize`
    */
   useEffect(() => {
     const tf = window.tf
@@ -43,6 +45,8 @@ export const ExtensionContextProvider = ({ children }) => {
         window.teachfloor.on('__set_context', (context) => {
           setContext(context)
         })
+
+        initialize()
       })
     }
   }, [])

@@ -1,3 +1,11 @@
+export const initialize = () => {
+  if (!teachfloor) {
+    throw new Error('Error initializing app')
+  }
+
+  teachfloor.emit('app.initialized')
+}
+
 export const showToast = (message = null, options = {}) => {
   if (!teachfloor || !message) {
     return

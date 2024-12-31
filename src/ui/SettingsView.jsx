@@ -33,7 +33,7 @@ export const SettingsView = ({
 
     const resizeObserver = new ResizeObserver(() => {
       if (teachfloor) {
-        teachfloor.emit('app.view.height', ref.current.clientHeight)
+        teachfloor.emit('app.view.height', ref.current?.clientHeight)
       }
     })
 
