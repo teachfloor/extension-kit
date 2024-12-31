@@ -26,7 +26,7 @@ const ExtensionContext = createContext(defaultContext)
 /**
  * Extension Context Provider
  */
-export const ExtensionContextProvider = ({ children }) => {
+export const ExtensionContextProvider = ({ autoInit = true, children }) => {
   const [context, setContext] = useState(defaultContext);
 
   /**
@@ -46,7 +46,9 @@ export const ExtensionContextProvider = ({ children }) => {
           setContext(context)
         })
 
-        initialize()
+        if (autoInit) {
+          initialize()
+        }
       })
     }
   }, [])
