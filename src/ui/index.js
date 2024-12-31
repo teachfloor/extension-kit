@@ -29,6 +29,7 @@ import {
   Stack as StackUI,
 
   Tabs as TabsUI,
+  Menu as MenuUI,
 } from '@teachfloor/ui-kit'
 
 import { ExtensionViewLoader as ViewLoader } from './ExtensionViewLoader'
@@ -57,6 +58,7 @@ export const Divider = DividerUI
 export const Button = ButtonUI
 export const ButtonGroup = ButtonUI.Group
 export const Tabs = TabsUI
+export const Menu = MenuUI
 
 /**
  * Content
