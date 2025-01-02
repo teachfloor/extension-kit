@@ -30,6 +30,9 @@ import {
 
   Tabs as TabsUI,
   Menu as MenuUI,
+
+  LineChart as LineChartUI,
+  BarChart as BarChartUI,
 } from '@teachfloor/ui-kit'
 
 import { ExtensionViewLoader as ViewLoader } from './ExtensionViewLoader'
@@ -88,3 +91,5 @@ export const ColorInput = ColorInputUI
 /**
  * Charts
  */
+export const LineChart = LineChartUI
+export const BarChart = BarChartUI
