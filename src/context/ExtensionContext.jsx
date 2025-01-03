@@ -54,7 +54,7 @@ export const ExtensionContextProvider = ({ autoInit = true, children }) => {
   }, [])
 
   const renderChildren = () => {
-    if (process && process?.env?.STORYBOOK) {
+    if (typeof process !== 'undefined' && process.env?.STORYBOOK) {
       return children
     }
 
