@@ -47,7 +47,7 @@
     ]
   },
   "dependencies": {
-    "@teachfloor/ui-kit": "^0.7.3",
+    "@teachfloor/ui-kit": "^0.8.0",
     "recharts": "^2.15.0"
   },
   "devDependencies": {
