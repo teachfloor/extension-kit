@@ -6,6 +6,8 @@ import { packKey } from './keyEnvelope'
  *
  * Provides a fluent API for working with collections including:
  * - Adding items
+ * - Updating items
+ * - Removing items
  * - Listing with pagination
  * - Auto-pagination for getting all items
  *
@@ -13,6 +15,8 @@ import { packKey } from './keyEnvelope'
  * const messages = createCollection('chat-messages', { limit: 15 })
  * await messages.add({ role: 'user', text: 'Hello' })
  * const page = await messages.list()
+ * await messages.update(page.items[0].id, { role: 'user', text: 'Updated' })
+ * await messages.remove(page.items[0].id)
  * const all = await messages.getAll()
  */
 class CollectionManager {
@@ -90,6 +94,43 @@ class CollectionManager {
   }
 
   /**
+   * Update an existing collection item
+   *
+   * Updates the value of an existing record by its ID.
+   *
+   * @param {string|number} id - The item ID to update
+   * @param {*} value - The new value to store
+   * @returns {Promise<*>} The updated value
+   *
+   * @example
+   * const page = await collection.list()
+   * const itemId = page.items[0].id
+   * await collection.update(itemId, { role: 'user', text: 'Updated message' })
+   */
+  async update(id, value) {
+    const packedKey = packKey(this.baseKey, { id, action: 'update' })
+    return store(packedKey, value, this.source)
+  }
+
+  /**
+   * Remove a collection item
+   *
+   * Deletes a record from the collection by its ID.
+   *
+   * @param {string|number} id - The item ID to remove
+   * @returns {Promise<null>}
+   *
+   * @example
+   * const page = await collection.list()
+   * const itemId = page.items[0].id
+   * await collection.remove(itemId)
+   */
+  async remove(id) {
+    const packedKey = packKey(this.baseKey, { id, action: 'delete' })
+    return store(packedKey, null, this.source)
+  }
+
+  /**
    * Get all items from the collection (auto-pagination)
    *
    * WARNING: This will fetch all pages. Use with caution on large collections.
@@ -156,8 +197,18 @@ class CollectionManager {
  *
  * // User collection (default)
  * const messages = createCollection('chat-messages')
+ *
+ * // Add item
  * await messages.add({ role: 'user', text: 'Hello' })
+ *
+ * // List items
  * const page = await messages.list()
+ *
+ * // Update item
+ * await messages.update(page.items[0].id, { role: 'user', text: 'Updated' })
+ *
+ * // Remove item
+ * await messages.remove(page.items[0].id)
  *
  * // App collection (future - when supported by backend)
  * const globalData = createCollection('global-stats', { source: 'appcollection' })
