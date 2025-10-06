@@ -69,3 +69,13 @@ export const store = (key, value, source = 'appdata') => {
 
   return teachfloor.set(key, value, source)
 }
+
+export const generate = (prompt, generationType = 'ai/text-generate') => {
+  if (!teachfloor) {
+    return Promise.reject(new Error('Teachfloor is not available'))
+  }
+
+  return teachfloor.generate(prompt, generationType)
+}
+
+export { createCollection } from './collection'
