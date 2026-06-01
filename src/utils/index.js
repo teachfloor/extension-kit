@@ -46,6 +46,14 @@ export const goToViewport = (viewport = null) => {
   teachfloor.emit('request.viewport.change', viewport)
 }
 
+export const goToPath = (path = null) => {
+  if (!teachfloor) {
+    return
+  }
+
+  teachfloor.emit('request.path.change', path)
+}
+
 export const subscribeToEvent = (event, callback = () => { }) => {
   if (!teachfloor) {
     return
