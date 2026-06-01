@@ -47,6 +47,13 @@ export const NotFoundView = ({ name = null, views = null }) => {
          * Avoid recognizing `settings` as a ui_extension view
          */
         .filter((view) => view !== 'settings')
+
+        /**
+         * Skip wildcard viewports (e.g. `teachfloor.dashboard.*`, `*`).
+         * They are dispatcher meta-routes — not navigable destinations —
+         * so they have no business in the "choose a page" prompt.
+         */
+        .filter((view) => !view.includes('*'))
     )
   }
 
