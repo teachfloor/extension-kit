@@ -19,9 +19,23 @@ const defaultContext = {
     viewport: undefined,
     path: undefined,
   },
+  /**
+   * Mirrors the dashboard's Mantine theme — color scheme + brand
+   * palette. Apps don't need to read this for visuals; the kit's
+   * `ThemeProvider` forwards it to MantineProvider so `theme.colorScheme`
+   * and `theme.colors.brand[…]` references inside `sx={...}` callbacks
+   * just work. Exposed in context for apps that need to render their
+   * own non-Mantine UI.
+   */
+  theme: {
+    colorScheme: 'light',
+    colors: {
+      brand: undefined,
+    },
+  },
 }
 
-const ExtensionContext = createContext(defaultContext)
+export const ExtensionContext = createContext(defaultContext)
 
 /**
  * Extension Context Provider
