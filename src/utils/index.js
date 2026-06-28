@@ -87,3 +87,4 @@ export const generate = (prompt, generationType = 'ai/text-generate') => {
 }
 
 export { createCollection } from './collection'
+export { realtime } from './realtime'
