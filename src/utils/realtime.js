@@ -10,7 +10,7 @@
  * Channel format (server-validated): `app.{appKey}.{scope}.{id}`
  * Allowed scopes in v1: `course`, `user`.
  *
- * See `docs/extension-apps/12-realtime.md` for the full developer
+ * See `docs/extension-apps/08-realtime.md` for the full developer
  * guide, including security model and host wiring.
  */
 
