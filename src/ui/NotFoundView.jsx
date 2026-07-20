@@ -40,21 +40,23 @@ export const NotFoundView = ({ name = null, views = null }) => {
       return views
     }
 
-    return (
+    /**
+     * `appContext.views` is the flat viewport array the host emits.
+     * With the widget surface an app can declare multiple views at
+     * the same viewport (e.g. two widgets both at
+     * `teachfloor.dashboard.dashboard.detail`), which would show up
+     * as duplicate buttons — dedupe defensively.
+     *
+     * Filters:
+     *   - omit `settings` (page surface, not a drawer destination)
+     *   - omit wildcard viewports (`*`, `teachfloor.dashboard.*`,
+     *     etc.) — dispatcher meta-routes, not navigable destinations
+     */
+    return Array.from(new Set(
       (appContext?.views || [])
-
-        /**
-         * Avoid recognizing `settings` as a ui_extension view
-         */
         .filter((view) => view !== 'settings')
-
-        /**
-         * Skip wildcard viewports (e.g. `teachfloor.dashboard.*`, `*`).
-         * They are dispatcher meta-routes — not navigable destinations —
-         * so they have no business in the "choose a page" prompt.
-         */
         .filter((view) => !view.includes('*'))
-    )
+    ))
   }
 
   const getAppName = () => {

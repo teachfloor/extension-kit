@@ -37,12 +37,14 @@ import {
 
 import { ExtensionViewLoader as ViewLoader } from './ExtensionViewLoader'
 import { SettingsView as SettingsViewUI } from './SettingsView'
+import { WidgetView as WidgetViewUI } from './WidgetView'
 
 /**
  * Extension App Components
  */
 export const ExtensionViewLoader = ViewLoader
 export const SettingsView = SettingsViewUI
+export const WidgetView = WidgetViewUI
 
 /**
  * Layout

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import {
   Container,
   SimpleGrid,
@@ -10,6 +10,7 @@ import {
   useExtensionContext,
 } from '../'
 
+import { useEmitViewHeight } from '../hooks/useEmitViewHeight'
 import { NotFoundView } from './NotFoundView'
 
 /**
@@ -23,23 +24,7 @@ export const SettingsView = ({
   const ref = useRef(null)
   const { appContext } = useExtensionContext()
 
-  /**
-   * Emit view height
-   */
-  useEffect(() => {
-    if (!ref.current) {
-      return
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-      if (teachfloor) {
-        teachfloor.emit('app.view.height', ref.current?.clientHeight)
-      }
-    })
-
-    resizeObserver.observe(ref.current)
-    return () => resizeObserver.disconnect()
-  }, [])
+  useEmitViewHeight(ref)
 
   /**
    * Decide if the settings view should be rendered
