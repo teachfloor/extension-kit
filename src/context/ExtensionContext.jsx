@@ -6,6 +6,7 @@ import React, {
 } from 'react'
 
 import { initialize } from '../'
+import { SURFACES } from '../constants'
 import { ThemeProvider } from './ThemeProvider'
 
 /**
@@ -18,6 +19,23 @@ const defaultContext = {
     initialized: false,
     viewport: undefined,
     path: undefined,
+    /**
+     * Rendering shape the app is currently mounted in — `drawer` (the
+     * right-side overlay panel), `page` (inline inside a host page
+     * container, e.g. the app-detail settings page), or `widget` (a
+     * cell in the dashboard widget grid). Defaults to `'drawer'` for
+     * backward compatibility with hosts that predate the surface signal.
+     *
+     * Grouped inside `environment` alongside `viewport` + `path`
+     * because it describes where/how the app is currently living, not
+     * what it IS (that's `appContext`).
+     *
+     * Apps can adapt layout by reading this: compact rendering for
+     * widgets, full layout for drawers, form-heavy for settings pages.
+     * Use the exported `SURFACES` constant for comparisons rather than
+     * bare strings.
+     */
+    surface: SURFACES.DRAWER,
   },
   /**
    * Mirrors the dashboard's Mantine theme — color scheme + brand
