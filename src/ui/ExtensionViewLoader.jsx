@@ -12,8 +12,14 @@ import { NotFoundView } from './NotFoundView'
  * (widget surface) or the viewport (everything else):
  *
  *   1. Filter to entries matching `environment.surface`. An entry with
- *      no `surface` field defaults to `drawer`; the environment default
- *      is also `drawer` for older hosts that don't send a surface.
+ *      no `surface` field defaults to `drawer`, EXCEPT for entries whose
+ *      `viewport === 'settings'` — those default to `page` to match the
+ *      convention every existing app declares (`{ viewport: 'settings',
+ *      component: 'AppSettings' }` with no `surface` field). The backend
+ *      applies the same remap when it serializes `view_descriptors` to
+ *      the host; we mirror it here so the kit's manifest resolver agrees.
+ *      The environment default is `drawer` for older hosts that don't
+ *      send a surface.
  *
  *   2. If `surface === 'widget'` AND `environment.view.id` is set, pick
  *      the entry whose `widget.id === environment.view.id`. This is how
@@ -41,7 +47,11 @@ const resolveView = (views, environment) => {
   const surface = environment?.surface || SURFACES.DRAWER
   const viewId = environment?.view?.id
 
-  const surfaceMatches = views.filter((v) => (v.surface || SURFACES.DRAWER) === surface)
+  const surfaceMatches = views.filter((v) => {
+    const entrySurface = v.surface
+      || (v.viewport === 'settings' ? SURFACES.PAGE : SURFACES.DRAWER)
+    return entrySurface === surface
+  })
 
   // Widget surface with an explicit view.id from the host: the iframe
   // was placed as a specific widget, so the manifest match MUST agree
