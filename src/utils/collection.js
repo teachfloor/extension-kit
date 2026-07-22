@@ -33,18 +33,30 @@ class CollectionManager {
   }
 
   /**
-   * Add an item to the collection
+   * Add an item to the collection.
    *
    * Creates a new record in the collection. Returns the stored value.
    *
+   * Optional `ttl` (seconds) makes this item auto-expire — after
+   * that, `list()` / `getAll()` stop returning it. TTL applies only
+   * to the item being added; `update()` never touches an existing
+   * item's TTL, so edits don't silently extend expiry.
+   *
    * @param {*} value - The value to store (object, array, string, number, etc.)
+   * @param {Object} [options]
+   * @param {number} [options.ttl] - Seconds until this item expires (omit for no expiry)
    * @returns {Promise<*>} The stored value
    *
    * @example
    * await collection.add({ role: 'user', text: 'Hello' })
+   *
+   * @example
+   * // Ephemeral: gone from list() after 24h
+   * await collection.add({ event: 'viewed', course: 42 }, { ttl: 86400 })
    */
-  async add(value) {
-    const packedKey = packKey(this.baseKey, {})
+  async add(value, options = {}) {
+    const params = options.ttl != null ? { ttl: options.ttl } : {}
+    const packedKey = packKey(this.baseKey, params)
     return store(packedKey, value, this.source)
   }
 
