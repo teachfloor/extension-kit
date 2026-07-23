@@ -19,6 +19,7 @@ const defaultContext = {
     initialized: false,
     viewport: undefined,
     path: undefined,
+
     /**
      * Rendering shape the app is currently mounted in — `drawer` (the
      * right-side overlay panel), `page` (inline inside a host page
@@ -36,7 +37,21 @@ const defaultContext = {
      * bare strings.
      */
     surface: SURFACES.DRAWER,
+
+    /**
+     * How the current surface is being presented — `'default'` (the
+     * natural placement: widget slot on the dashboard, drawer panel,
+     * settings page) or `'modal'` (a widget-surface view that was
+     * opened via `openModal(...)` from the same widget). Widgets can
+     * check this to relax compact layouts when they've been given
+     * more room.
+     *
+     * Only ever set to `'modal'` for widget surface today; drawer and
+     * page surfaces always report `'default'`.
+     */
+    presentation: 'default',
   },
+
   /**
    * Mirrors the dashboard's Mantine theme — color scheme + brand
    * palette. Apps don't need to read this for visuals; the kit's
@@ -51,6 +66,23 @@ const defaultContext = {
       brand: undefined,
     },
   },
+
+  /**
+   * Arbitrary app-passed payload that carried this iframe into its
+   * current mount — e.g. `openModal({ state: { noteId } })` from a
+   * parent widget lands here in the modal-mounted child. Set once at
+   * mount, does not update. Same pattern as React Router's
+   * `location.state`. `null` when no launch state was passed.
+   *
+   * Top-level (not under `environment`) because it's APP-provided
+   * data, not host/URL-derived context — mirrors how React Router
+   * puts host-driven `pathname` and app-driven `state` at the same
+   * level of `location`.
+   *
+   * Prefer the `useLaunchState()` hook at call sites to keep the
+   * variable name unambiguous next to React's `useState` locals.
+   */
+  state: null,
 }
 
 export const ExtensionContext = createContext(defaultContext)
