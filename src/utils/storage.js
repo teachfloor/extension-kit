@@ -1,6 +1,30 @@
 import { store, retrieve } from './index'
 import { packKey } from './keyEnvelope'
 
+// Allow-listed comparators per queryable field for `query()`. Kept
+// small on purpose — both this client-side guard and the pending
+// backend translator (`HasAppStore::queryData`) walk the same lists.
+// Adding a new op or field means one entry on each side, no shape change.
+//
+// `key`         — string LIKE-friendly ops on the unencrypted row key.
+// `created_at`, `updated_at` — range ops on the row timestamps.
+// `value`, `expires_at`, `user_id`, etc. are intentionally NOT queryable
+// (`value` is encrypted at rest, `expires_at` is internal TTL bookkeeping).
+const FIELD_OPS = {
+  key: new Set(['=', '!=', 'in', 'not in', 'contains', 'not contains']),
+  created_at: new Set(['>', '>=', '<', '<=']),
+  updated_at: new Set(['>', '>=', '<', '<=']),
+}
+const SORT_FIELDS = new Set(['updated_at', 'created_at'])
+const SORT_DIRECTIONS = new Set(['asc', 'desc'])
+
+// Cardinality cap on `in` / `not in` array values. Matches the
+// backend `AppStoreQuery::MAX_IN_VALUES`. Prevents apps from building
+// a SQL `IN (…)` with thousands of entries — bad for MySQL packet
+// size + query planner. Callers with more than this many keys to
+// resolve should paginate through `query()` instead.
+const MAX_IN_VALUES = 100
+
 const NAMESPACE_SEPARATOR = ':'
 
 /**
@@ -10,12 +34,17 @@ const NAMESPACE_SEPARATOR = ':'
  * Currently provides:
  *   - Namespaced set / get / remove
  *   - TTL / expiry on write (auto-expire values after N seconds)
+ *   - Paged iteration of the namespace with a small filter + sort DSL
+ *     (`query`) — filters run against metadata columns only (`key`,
+ *     `created_at`, `updated_at`); the `value` column is encrypted at
+ *     rest and cannot be predicated on. The backend endpoint
+ *     (`HasAppStore::queryData`) is pending — kit-side shape is in
+ *     place so app code can be authored against the final API.
  *
  * Not yet available (backend endpoints pending — see the
  * "SDK primitives backlog" section in the surfaces system doc):
  *   - Cheap existence check (`has`)
  *   - Atomic counters (`increment` / `decrement`)
- *   - Enumeration by pattern with pagination (`list`)
  *
  * `baseKey` acts as a namespace prefix — every operation is
  * automatically scoped under it, so different features of an app
@@ -39,7 +68,7 @@ class StorageManager {
    * @param {string} baseKey - Namespace prefix; all keys are scoped under this
    * @param {Object} [options]
    * @param {string} [options.source='appdata'] - 'appdata' or 'userdata'
-   * @param {number} [options.defaultLimit=100] - Default page size for `list()`
+   * @param {number} [options.defaultLimit=100] - Default page size for `query()`
    */
   constructor(baseKey, options = {}) {
     if (typeof baseKey !== 'string' || baseKey.length === 0) {
@@ -62,10 +91,8 @@ class StorageManager {
   /**
    * Strip the `<baseKey>:` prefix from a server-returned key so
    * callers see the sub-key they passed in — round-trips cleanly
-   * with `get()` / `set()` / `remove()`.
-   *
-   * Currently only used by the (commented-out) `list()` method —
-   * kept in place so re-enabling `list()` is a single-block uncomment.
+   * with `get()` / `set()` / `remove()`. Used by `query()` when
+   * rewriting each returned row's key back into app-facing form.
    */
   _stripPrefix(composedKey) {
     const prefix = `${this.baseKey}${NAMESPACE_SEPARATOR}`
@@ -170,38 +197,157 @@ class StorageManager {
    */
 
   /**
-   * ---------- NOT YET WIRED (see SDK primitives backlog / S1) ----------
-   * `list({ pattern, limit, cursor })` — enumerate keys under this
-   * namespace with `*`-wildcard pattern + cursor pagination. Backend
-   * trait already implements this (see `HasAppStore::listData`); the
-   * wire path is pending an open URL-shape decision. Uncomment (and
-   * the `_stripPrefix` helper above) once the backend endpoint lands.
+   * Paged iteration of the namespace with a small filter + sort DSL.
+   * Filters run against metadata columns only — the `value` column is
+   * encrypted at rest and cannot be predicated on. Expired rows are
+   * always excluded (no escape hatch).
    *
-   * async list(options = {}) {
-   *   // Scope every list under the namespace. If the caller didn't
-   *   // pass a pattern, we scan the whole namespace via `*`.
-   *   const scopedPattern = this._composedKey(options.pattern || '*')
+   * `where` is an array of predicates AND-ed together by default, with
+   * `{ and | or: [entries] }` group objects for nested boolean logic.
+   * Groups can nest arbitrarily. Non-obvious rule: a group object must
+   * carry exactly one of `and` / `or` — supplying both throws (nest an
+   * inner group instead).
    *
-   *   const params = {
-   *     action: 'list',
-   *     pattern: scopedPattern,
-   *     limit: options.limit || this.defaultLimit,
-   *   }
-   *   if (options.cursor) params.next = options.cursor
+   * Field / op matrix (whitelisted client-side; backend re-validates):
+   *   - `key`                       : =  !=  in  "not in"  contains  "not contains"
+   *   - `created_at`, `updated_at`  : >  >=  <  <=
    *
-   *   const packedKey = packKey(this.baseKey, params)
-   *   const result = await retrieve(packedKey, this.source)
+   * For `key` exact-match ops (`=`, `!=`, `in`, `not in`) values are
+   * treated as sub-keys and namespaced automatically, matching `get()`
+   * / `set()` semantics. `contains` / `not contains` values pass
+   * through raw and search the namespace-scoped set (the backend adds
+   * the implicit `WHERE key LIKE '<baseKey>:%'` clause per request).
    *
-   *   const rawKeys = (result && result.data) || []
+   * Kit-side validators fail loud at the call site with a clear error
+   * — the same allow-list runs server-side, so a typo never silently
+   * drops predicates without the app knowing.
    *
-   *   return {
-   *     keys: rawKeys.map((k) => this._stripPrefix(k)),
-   *     hasMore: !!(result && result.pagination && result.pagination.next),
-   *     nextCursor: (result && result.pagination && result.pagination.next) || null,
-   *   }
-   * }
-   * ---------------------------------------------------------------------
+   * NOT YET FUNCTIONAL — the backend `HasAppStore::queryData` endpoint
+   * is pending. Calls will error at the server until it lands; the
+   * client-side shape is finalized so app code can be authored now.
+   *
+   * @param {Object}   [options]
+   * @param {Array}    [options.where=[]]              Predicate tree
+   * @param {Array}    [options.sort=[['updated_at','desc']]]
+   * @param {number}   [options.limit]                 Defaults to `defaultLimit`
+   * @param {string}   [options.after]                 Opaque cursor from prev page
+   * @returns {Promise<{items: Array, nextCursor: string|null}>}
+   *
+   * @example
+   * // Recent drafts OR any pinned note, newest first
+   * const page = await storage.query({
+   *   where: [
+   *     { or: [
+   *       { and: [
+   *         ['updated_at', '>=', '2026-07-01'],
+   *         ['key', 'contains', 'draft'],
+   *       ]},
+   *       ['key', 'in', ['pinned-1', 'pinned-2']],
+   *     ]},
+   *   ],
+   *   sort: [['updated_at', 'desc']],
+   *   limit: 20,
+   * })
    */
+  async query(options = {}) {
+    const where = this._validateWhere(options.where)
+    const sort = this._validateSort(options.sort)
+    const packedKey = packKey(this.baseKey, {
+      action: 'query',
+      where,
+      sort,
+      limit: options.limit || this.defaultLimit,
+      ...(options.after ? { after: options.after } : {}),
+    })
+    const result = await retrieve(packedKey, this.source)
+    const items = ((result && result.items) || []).map((row) => ({
+      ...row,
+      key: this._stripPrefix(row.key),
+    }))
+    return { items, nextCursor: (result && result.nextCursor) || null }
+  }
+
+  _validateWhere(where) {
+    if (!where) return []
+    if (!Array.isArray(where)) {
+      throw new Error('storage.query: `where` must be an array of predicates or groups')
+    }
+    return where.map((entry) => this._validateEntry(entry))
+  }
+
+  _validateEntry(entry) {
+    if (Array.isArray(entry)) return this._validateTuple(entry)
+    if (entry && typeof entry === 'object') {
+      const hasAnd = Object.prototype.hasOwnProperty.call(entry, 'and')
+      const hasOr = Object.prototype.hasOwnProperty.call(entry, 'or')
+      if (hasAnd && hasOr) {
+        throw new Error('storage.query: group cannot carry both `and` and `or` — nest instead')
+      }
+      const op = hasAnd ? 'and' : hasOr ? 'or' : null
+      if (!op) {
+        throw new Error('storage.query: group must have `and` or `or` key')
+      }
+      if (!Array.isArray(entry[op])) {
+        throw new Error(`storage.query: "${op}" value must be an array of entries`)
+      }
+      return { [op]: entry[op].map((child) => this._validateEntry(child)) }
+    }
+    throw new Error('storage.query: entry must be a [field, op, value] tuple or a {and|or: [...]} group')
+  }
+
+  _validateTuple(pred) {
+    if (pred.length !== 3) {
+      throw new Error('storage.query: predicate must be [field, op, value]')
+    }
+    const [field, op, value] = pred
+    const allowedOps = FIELD_OPS[field]
+    if (!allowedOps) throw new Error(`storage.query: unsupported field "${field}"`)
+    if (!allowedOps.has(op)) {
+      throw new Error(`storage.query: unsupported operator "${op}" for field "${field}"`)
+    }
+    if (op === 'in' || op === 'not in') {
+      if (!Array.isArray(value)) {
+        throw new Error(`storage.query: "${op}" requires an array value`)
+      }
+      if (value.length > MAX_IN_VALUES) {
+        throw new Error(`storage.query: "${op}" cannot accept more than ${MAX_IN_VALUES} values (got ${value.length})`)
+      }
+    }
+    if (field === 'key') {
+      return [field, op, this._scopeKeyValue(op, value)]
+    }
+    return [field, op, value]
+  }
+
+  _validateSort(sort) {
+    if (!sort) return [['updated_at', 'desc']]
+    if (!Array.isArray(sort)) {
+      throw new Error('storage.query: `sort` must be an array of [field, direction] tuples')
+    }
+    return sort.map((pair) => {
+      if (!Array.isArray(pair) || pair.length !== 2) {
+        throw new Error('storage.query: each sort entry must be [field, direction]')
+      }
+      const [field, dir] = pair
+      if (!SORT_FIELDS.has(field)) {
+        throw new Error(`storage.query: unsupported sort field "${field}"`)
+      }
+      if (!SORT_DIRECTIONS.has(dir)) {
+        throw new Error(`storage.query: sort direction must be "asc" or "desc"`)
+      }
+      return [field, dir]
+    })
+  }
+
+  _scopeKeyValue(op, value) {
+    if (op === 'in' || op === 'not in') {
+      return value.map((v) => this._composedKey(v))
+    }
+    if (op === '=' || op === '!=') {
+      return this._composedKey(value)
+    }
+    return value
+  }
 
   /**
    * @returns {string} The namespace prefix this storage was created with
@@ -224,7 +370,7 @@ class StorageManager {
  * @param {string} baseKey - Namespace prefix for all keys managed by this instance
  * @param {Object} [options]
  * @param {string} [options.source='appdata'] - 'appdata' (org-scoped) or 'userdata' (per-user)
- * @param {number} [options.defaultLimit=100] - Default page size for `list()` (unused until list() ships)
+ * @param {number} [options.defaultLimit=100] - Default page size for `query()`
  * @returns {StorageManager}
  *
  * @example
